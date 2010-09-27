@@ -282,23 +282,67 @@
 		event_internals(t_obj, char_area, c_settings, max_char, true);
 
 		// then attach the events -- seem to work better than keypress
-		$(t_obj).keydown(function(e) {
+		$(t_obj).bind('keydown.noblecount', function(e) {
 			event_internals(t_obj, char_area, c_settings, max_char, false);
 
 			// to block text entry, return false
 			if (check_block_negative(e, t_obj, c_settings, max_char) == false) {
+				trim_input(t_obj, char_area, c_settings, max_char);
 				return false;
-			} 
+			}
 		});
 
-		$(t_obj).keyup(function(e) {
+		$(t_obj).bind('keyup.noblecount', function(e) {
 			event_internals(t_obj, char_area, c_settings, max_char, false);
 			
 			// to block text entry, return false
 			if (check_block_negative(e, t_obj, c_settings, max_char) == false) {
 				return false;
-			} 
+			}
 		});
+		
+		$(t_obj).bind('paste.noblecount', function(e) {
+			event_internals(t_obj, char_area, c_settings, max_char, false);
+			
+			// You need a slight pause
+			setTimeout(function() {
+				if (check_block_negative(e, t_obj, c_settings, max_char) == false) {
+						trim_input(t_obj, char_area, c_settings, max_char);
+						return false;
+				}
+			}, 5);
+		});
+	}
+	
+	/**********************************************************************************
+
+		FUNCTION
+			check_block_negative
+	
+		DESCRIPTION
+			determines whether or not text entry within t_obj should be prevented
+			
+		PRE
+			e EXISTS
+			t_obj VALID
+			c_settings and max_char initialized / calculated
+			
+		POST
+			if t_obj text entry should be prevented FALSE is returned
+				otherwise TRUE returned
+	
+		TODO
+			improve selection detection and permissible behaviors experience
+			ALSO
+				doesnt CURRENTLY block from the pasting of large chunks of text that 
+				exceed max_char
+		
+	**********************************************************************************/
+	
+	function trim_input(t_obj, char_area, c_settings, max_char){
+		var content = $(t_obj).val();
+		$(t_obj).val(content.substr(0, max_char));
+		event_internals(t_obj, char_area, c_settings, max_char, false);
 	}
 
 
@@ -347,6 +391,8 @@
 				!selected)) == false) {
 				
 				// block text entry
+				return false;
+			} else if ((find_remaining(t_obj, max_char) < 1) && e.type == "paste") {
 				return false;
 			}
 		}
