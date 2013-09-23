@@ -305,10 +305,10 @@
         });
 
         $(t_obj).on('paste.noblecount', function(e) {
-            event_internals(t_obj, char_area, c_settings, max_char, false);
-
             // You need a slight pause
             setTimeout(function() {
+                event_internals(t_obj, char_area, c_settings, max_char, false);
+
                 if (!check_block_negative(e, t_obj, c_settings, max_char)) {
                     trim_input(t_obj, char_area, c_settings, max_char);
                     return false;
